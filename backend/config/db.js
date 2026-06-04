@@ -16,9 +16,6 @@ const pool = mysql.createPool({
 const initDB = async () => {
   const conn = await pool.getConnection();
   try {
-    await conn.query(`CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME}\``);
-    await conn.query(`USE \`${process.env.DB_NAME}\``);
-
     await conn.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -26,15 +23,29 @@ const initDB = async () => {
         email VARCHAR(100) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
         role ENUM('admin','mahasiswa') DEFAULT 'mahasiswa',
-        nim VARCHAR(20),
-        prodi VARCHAR(100),
-        angkatan YEAR,
-        no_hp VARCHAR(20),
-        foto VARCHAR(255),
+        nim VARCHAR(20) DEFAULT NULL,
+        prodi VARCHAR(100) DEFAULT NULL,
+        angkatan YEAR DEFAULT NULL,
+        no_hp VARCHAR(20) DEFAULT NULL,
+        foto VARCHAR(255) DEFAULT NULL,
         status_magang ENUM('aktif','selesai','belum') DEFAULT 'belum',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Tambah kolom jika belum ada (untuk database yang sudah terlanjur dibuat)
+    const alterColumns = [
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS nim VARCHAR(20) DEFAULT NULL`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS prodi VARCHAR(100) DEFAULT NULL`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS angkatan YEAR DEFAULT NULL`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS no_hp VARCHAR(20) DEFAULT NULL`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS foto VARCHAR(255) DEFAULT NULL`,
+      `ALTER TABLE users ADD COLUMN IF NOT EXISTS status_magang ENUM('aktif','selesai','belum') DEFAULT 'belum'`,
+    ];
+
+    for (const sql of alterColumns) {
+      try { await conn.query(sql); } catch (e) { /* kolom sudah ada, skip */ }
+    }
 
     await conn.query(`
       CREATE TABLE IF NOT EXISTS perusahaan (
@@ -71,7 +82,6 @@ const initDB = async () => {
         `INSERT INTO users (nama, email, password, role) VALUES (?, ?, ?, ?)`,
         ['Administrator', 'admin@sima.ac.id', hashed, 'admin']
       );
-      console.log('✅ Admin default dibuat: admin@sima.ac.id / admin123');
     }
 
     console.log('✅ Database siap');
