@@ -1,0 +1,10 @@
+const router = require('express').Router();
+const auth = require('../middleware/auth');
+const { uploadFoto } = require('../middleware/upload');
+const c = require('../controllers/profileController');
+router.get('/', auth, c.getProfile);
+router.put('/', auth, c.updateProfile);
+router.post('/foto', auth, uploadFoto.single('foto'), c.uploadFoto);
+router.delete('/foto', auth, c.deleteFoto);
+router.put('/password', auth, c.changePassword);
+module.exports = router;
