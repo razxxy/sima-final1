@@ -29,9 +29,8 @@ const Login = () => {
     setError('');
     setLoading(true);
     try {
-      // Di project kita, AuthContext.login(email, password) sudah menangani token
       await login(email, password);
-      navigate('/');          // dashboard ada di route '/'
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login gagal');
     } finally {
@@ -62,7 +61,6 @@ const Login = () => {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="mahasiswa@sima.ac.id"
               />
             </div>
             <div>
@@ -74,7 +72,6 @@ const Login = () => {
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="••••••••"
                 />
                 <button
                   type="button"
