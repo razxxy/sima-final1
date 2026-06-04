@@ -93,9 +93,8 @@ const Profile = () => {
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
-    if (pwForm.newPassword !== pwForm.confirmPassword) {
+    if (pwForm.newPassword !== pwForm.confirmPassword)
       return showMsg('Konfirmasi password tidak cocok', true);
-    }
     try {
       await api.put('/profile/password', {
         oldPassword: pwForm.oldPassword,
@@ -110,123 +109,131 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <div className="flex justify-center py-20">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="w-8 h-8 border-4 border-blue-800 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Profil Saya</h1>
+    <div className="min-h-screen bg-gray-50 py-8 px-4">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <h1 className="text-2xl font-bold text-gray-800">Profil Saya</h1>
 
-      {msg && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">{msg}</div>}
-      {err && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">{err}</div>}
+        {msg && <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm">{msg}</div>}
+        {err && <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm">{err}</div>}
 
-      {/* Foto & Info */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center gap-5 mb-6">
-          <div className="relative">
-            {user?.foto ? (
-              <img src={`/${user.foto}`} className="w-20 h-20 rounded-full object-cover border-4 border-blue-100" alt="foto" />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-blue-800 text-white flex items-center justify-center text-2xl font-bold">
-                {profile.nama?.[0]?.toUpperCase()}
-              </div>
-            )}
-          </div>
-          <div>
-            <h2 className="font-semibold text-gray-800 text-lg">{profile.nama}</h2>
-            <p className="text-sm text-gray-500 capitalize">{profile.role}</p>
-            {profile.nim && <p className="text-xs text-gray-400 mt-0.5">NIM: {profile.nim}</p>}
-            <div className="flex gap-2 mt-3">
-              <label className="cursor-pointer bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-300">
-                Ganti Foto
-                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} />
-              </label>
-              {user?.foto && (
-                <button onClick={handleDeleteFoto} className="bg-red-100 text-red-700 px-3 py-1 rounded text-sm hover:bg-red-200">
-                  Hapus Foto
-                </button>
+        {/* Foto & Info */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <div className="flex items-center gap-5 mb-6">
+            <div className="relative">
+              {profile.foto ? (
+                <img src={`/${profile.foto}`} className="w-20 h-20 rounded-full object-cover border-4 border-blue-100" alt="foto" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-blue-800 text-white flex items-center justify-center text-2xl font-bold">
+                  {profile.nama?.[0]?.toUpperCase()}
+                </div>
               )}
             </div>
+            <div>
+              <h2 className="font-semibold text-gray-800 text-lg">{profile.nama}</h2>
+              <p className="text-sm text-gray-500 capitalize">{profile.role}</p>
+              <div className="flex gap-2 mt-3">
+                <label className="cursor-pointer bg-gray-100 text-gray-700 px-3 py-1.5 rounded-lg text-sm hover:bg-gray-200 transition-colors">
+                  Ganti Foto
+                  <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFotoUpload} />
+                </label>
+                {profile.foto && (
+                  <button onClick={handleDeleteFoto} className="bg-red-50 text-red-700 px-3 py-1.5 rounded-lg text-sm hover:bg-red-100 transition-colors">
+                    Hapus Foto
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
+
+          {editMode ? (
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
+                <input
+                  type="text" required
+                  value={form.nama}
+                  onChange={e => setForm({ ...form, nama: e.target.value })}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">No. HP</label>
+                  <input
+                    type="tel"
+                    value={form.no_hp}
+                    onChange={e => setForm({ ...form, no_hp: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button type="submit" disabled={loading} className="bg-blue-800 text-white px-5 py-2 rounded-lg hover:bg-blue-900 transition-colors">
+                  {loading ? 'Menyimpan...' : 'Simpan'}
+                </button>
+                <button type="button" onClick={() => setEditMode(false)} className="border border-gray-300 px-5 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                  Batal
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex gap-2"><span className="font-medium w-28 shrink-0">Nama</span><span>{profile.nama}</span></div>
+              <div className="flex gap-2"><span className="font-medium w-28 shrink-0">Email</span><span>{profile.email}</span></div>
+              <div className="flex gap-2"><span className="font-medium w-28 shrink-0">Role</span><span className="capitalize">{profile.role}</span></div>
+              {profile.no_hp && <div className="flex gap-2"><span className="font-medium w-28 shrink-0">No. HP</span><span>{profile.no_hp}</span></div>}
+              <button
+                onClick={() => setEditMode(true)}
+                className="mt-3 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors"
+              >
+                Edit Profil
+              </button>
+            </div>
+          )}
         </div>
 
-        {editMode ? (
-          <form onSubmit={handleUpdateProfile} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-              <input type="text" required value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {user?.role === 'mahasiswa' && (
-                <>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">No. HP</label>
-                    <input type="tel" value={form.no_hp} onChange={e => setForm({ ...form, no_hp: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
-                    <input type="text" value={form.prodi} onChange={e => setForm({ ...form, prodi: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
-                    <input type="number" min="2000" max="2099" value={form.angkatan} onChange={e => setForm({ ...form, angkatan: e.target.value })} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
-                  </div>
-                </>
-              )}
-            </div>
-            <div className="flex gap-3">
-              <button type="submit" disabled={loading} className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900">{loading ? 'Menyimpan...' : 'Simpan'}</button>
-              <button type="button" onClick={() => setEditMode(false)} className="border px-4 py-2 rounded hover:bg-gray-100">Batal</button>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-3">
-            <p><strong>Nama:</strong> {profile.nama}</p>
-            <p><strong>Email:</strong> {profile.email}</p>
-            {profile.nim && <p><strong>NIM:</strong> {profile.nim}</p>}
-            {profile.prodi && <p><strong>Prodi:</strong> {profile.prodi}</p>}
-            {profile.angkatan && <p><strong>Angkatan:</strong> {profile.angkatan}</p>}
-            {profile.no_hp && <p><strong>No HP:</strong> {profile.no_hp}</p>}
-            <button onClick={() => setEditMode(true)} className="bg-gray-200 px-4 py-2 rounded mt-2">Edit Profil</button>
-          </div>
-        )}
-      </div>
-
-      {/* Ubah Password */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="font-semibold text-gray-800 mb-4">Ubah Password</h2>
-        <form onSubmit={handleChangePassword} className="space-y-4">
-          {[
-            { key: 'oldPassword', label: 'Password Lama', show: 'lama' },
-            { key: 'newPassword', label: 'Password Baru', show: 'baru' },
-            { key: 'confirmPassword', label: 'Konfirmasi Password Baru', show: 'konfirmasi' },
-          ].map(({ key, label, show }) => (
-            <div key={key}>
-              <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-              <div className="relative max-w-sm">
-                <input
-                  type={showPw[show] ? 'text' : 'password'}
-                  required
-                  minLength={key === 'oldPassword' ? 1 : 6}
-                  value={pwForm[key]}
-                  onChange={e => setPwForm({ ...pwForm, [key]: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPw(s => ({ ...s, [show]: !s[show] }))}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPw[show] ? <EyeOffIcon /> : <EyeIcon />}
-                </button>
+        {/* Ubah Password */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="font-semibold text-gray-800 mb-4">Ubah Password</h2>
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            {[
+              { key: 'oldPassword', label: 'Password Lama', show: 'lama' },
+              { key: 'newPassword', label: 'Password Baru', show: 'baru' },
+              { key: 'confirmPassword', label: 'Konfirmasi Password Baru', show: 'konfirmasi' },
+            ].map(({ key, label, show }) => (
+              <div key={key}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
+                <div className="relative max-w-sm">
+                  <input
+                    type={showPw[show] ? 'text' : 'password'}
+                    required
+                    minLength={key === 'oldPassword' ? 1 : 6}
+                    value={pwForm[key]}
+                    onChange={e => setPwForm({ ...pwForm, [key]: e.target.value })}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10 focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPw(s => ({ ...s, [show]: !s[show] }))}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showPw[show] ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
-          <button type="submit" className="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900">Ubah Password</button>
-        </form>
+            ))}
+            <button type="submit" className="bg-blue-800 text-white px-5 py-2 rounded-lg hover:bg-blue-900 transition-colors text-sm">
+              Ubah Password
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );
