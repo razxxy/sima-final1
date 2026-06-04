@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../api/axios';
 
 const EyeIcon = () => (
@@ -15,35 +15,38 @@ const EyeOffIcon = () => (
   </svg>
 );
 
-export default function Register() {
-  const [form, setForm] = useState({ nama: '', email: '', password: '', nim: '', prodi: '', angkatan: '', no_hp: '' });
+const Register = () => {
+  const [form, setForm] = useState({ nama: '', email: '', password: '', nim: '', prodi: '', angkatan: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
     try {
       await api.post('/auth/register', form);
-      navigate('/login');
+      setSuccess('Registrasi berhasil! Silakan login.');
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Terjadi kesalahan');
+      setError(err.response?.data?.message || 'Registrasi gagal');
     } finally {
       setLoading(false);
     }
   };
 
-  const f = (k) => ({ value: form[k], onChange: e => setForm({ ...form, [k]: e.target.value }) });
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-900 via-primary-800 to-primary-700 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-700 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-white">SIMA</h1>
-          <p className="text-primary-200 mt-2 text-sm">Sistem Informasi Manajemen Magang</p>
+          <p className="text-blue-200 mt-2 text-sm">Sistem Informasi Manajemen Magang</p>
         </div>
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           <h2 className="text-xl font-bold text-gray-800 mb-6">Daftar Akun Mahasiswa</h2>
@@ -52,25 +55,32 @@ export default function Register() {
               {error}
             </div>
           )}
+          {success && (
+            <div className="bg-green-50 border border-green-200 text-green-700 rounded-lg px-4 py-3 text-sm mb-4">
+              {success}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap *</label>
-                <input type="text" required {...f('nama')} className="input-field" />
+                <input type="text" name="nama" required value={form.nama} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-                <input type="email" required {...f('email')} className="input-field" />
+                <input type="email" name="email" required value={form.email} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password *</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
+                    name="password"
                     required
                     minLength={6}
-                    {...f('password')}
-                    className="input-field pr-10"
+                    value={form.password}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 pr-10"
                   />
                   <button
                     type="button"
@@ -82,29 +92,25 @@ export default function Register() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">NIM</label>
-                <input type="text" {...f('nim')} className="input-field" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">NIM *</label>
+                <input type="text" name="nim" required value={form.nim} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Program Studi</label>
-                <input type="text" {...f('prodi')} className="input-field" />
+                <input type="text" name="prodi" value={form.prodi} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Angkatan</label>
-                <input type="number" min="2000" max="2099" {...f('angkatan')} className="input-field" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">No. HP</label>
-                <input type="tel" {...f('no_hp')} className="input-field" />
+                <input type="number" name="angkatan" min="2000" max="2099" value={form.angkatan} onChange={handleChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" />
               </div>
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
+            <button type="submit" disabled={loading} className="w-full bg-blue-800 hover:bg-blue-900 text-white font-medium py-2.5 rounded-lg transition-colors">
               {loading ? 'Mendaftar...' : 'Daftar Sekarang'}
             </button>
           </form>
           <p className="text-center text-sm text-gray-500 mt-4">
             Sudah punya akun?{' '}
-            <Link to="/login" className="text-primary-700 font-medium hover:underline">
+            <Link to="/login" className="text-blue-700 font-medium hover:underline">
               Masuk
             </Link>
           </p>
@@ -112,4 +118,6 @@ export default function Register() {
       </div>
     </div>
   );
-}
+};
+
+export default Register;
