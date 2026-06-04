@@ -6,16 +6,18 @@ const { initDB } = require('./config/db');
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    'https://sima-final1.vercel.app',
-    'http://localhost:5173'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-app.options('*', cors());
+// CORS - izinkan semua origin
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -32,7 +34,7 @@ app.get('/', (req, res) => res.json({ message: 'SIMA API Running' }));
 const PORT = process.env.PORT || 5000;
 
 initDB().then(() => {
-  app.listen(PORT, () => console.log(`🚀 Server berjalan di port ${PORT}`));
+  app.listen(PORT, () => console.log(`Server berjalan di port ${PORT}`));
 }).catch(err => {
   console.error('Gagal inisialisasi DB:', err);
   process.exit(1);
